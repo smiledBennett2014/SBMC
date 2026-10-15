@@ -1,5 +1,7 @@
 package com.benji.sbmc;
 
+import com.benji.sbmc.item.ModItems;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import org.slf4j.Logger;
 
@@ -30,10 +32,14 @@ public class SBModdingCore {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
 
+        ModItems.register(modEventBus);
+
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (SBModdingCore) to respond directly to events.
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
+        // Register the item to a creative tab
+        modEventBus.addListener(this::addCreative);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -44,7 +50,9 @@ public class SBModdingCore {
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
-
+        if(event.getTabKey() == CreativeModeTabs.COMBAT) {
+            event.accept(ModItems.Verity);
+        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
